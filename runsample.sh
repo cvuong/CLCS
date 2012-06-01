@@ -6,4 +6,4 @@ if [ $# -ne 1 ]; then
 fi
 
 echo "Compiling and running the C++ file $1..."
-g++ -O2 $1 && time ./a.out < sample.in | ./judge sample.out
+g++ -O2 $1 && time ./a.out < test.txt | ./judge sample.out
