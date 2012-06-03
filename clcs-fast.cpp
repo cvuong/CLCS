@@ -3,6 +3,12 @@
 #include <string>
 
 #define MAX_SIZE 2048
+//#define USEDEBUG 1
+#ifdef USEDEBUG
+#define Debug(x) std::cout << x
+#else
+#define Debug(x) 
+#endif
 
 using namespace std;
 
@@ -40,25 +46,28 @@ void fillDP(int mid, int low, int up) {
   int i, j;
 	int start_col, end_col;
 
+	int shift = 0;//m / 2;
+	
 	//perm = A.substr(mid) + A.substr(0, mid);
 	
   for (i = mid; i <= mid + m; i++) {	// valid rows to look in 
-		/*
-		if (i < up) {
+		
+		if (i < up + shift) {
 			start_col = 1;
 		} else {
-			start_col = max(upper_bounds[up][i - up],1);
-		}*/
-		start_col = max(upper_bounds[up][i - mid], 1);
-		end_col = min(lower_bounds[low][i - mid], n);
-		/*
-		if (i > low + m) {
+			start_col = max(upper_bounds[up][i - (up + shift)], 1);
+		}
+		//start_col = max(upper_bounds[up][i - mid] - 1, 1);
+		//end_col = min(lower_bounds[low][i - mid] + 1, n);
+		
+		if (i > low + m - shift) {
 			end_col = n;
 		} else {
-			end_col = lower_bounds[low][i - low];
+			end_col = min(lower_bounds[low][i - (low - shift)], n);
 		}
-		*/
 		
+		//start_col = 0;
+		//end_col = n;
 		
 		//cout << " row: " << i << " start: " << start_col << " end: " << end_col << endl;
 
@@ -70,7 +79,7 @@ void fillDP(int mid, int low, int up) {
 				//cout << "diag " << doubleA[i-1] << B[j-1] << endl;
 				arr[i][j] = max(arr[i][j], arr[i-1][j-1]+1);
 			}
-			cout << i << " " << j << " " << arr[i][j] << endl;
+			//cout << i << " " << j << " " << arr[i][j] << endl;
     }
   }
   
@@ -93,10 +102,12 @@ void traceBack(int mid) {
 	//cout << "traceback " << start_row << endl;
 	
 	int row = mid + m, col = n;
+	int path_row = row - mid;
 	while (true) {
-		
-		//if (start_row == 3) cout << "row: " << row << " col: " << col << endl;
-		upper_bounds[mid][row] = col;
+		//cout << "row: " << row << " col: " << col << endl;
+		//printBounds(mid);
+		//cout << "lower bound: " << lower_bounds[mid][path_row] << " upper bound: " << upper_bounds[mid][path_row] << endl;
+		upper_bounds[mid][path_row] = col;
 			
 		if (row == mid && col == 0) {
 			break;
@@ -108,30 +119,36 @@ void traceBack(int mid) {
 			col--;
 			continue;
 		} else if (col == 0) {	// move up
-			row--;
-			lower_bounds[mid][row] = col;
+			row--; path_row--;
+			lower_bounds[mid][path_row] = col;
 			continue;
 		}
 		
 		if (doubleA.at(row-1) == B.at(col-1)) {	
-			row--; col--;
-			lower_bounds[mid][row] = col;
-		} else if(arr[row-1][col] > arr[row][col-1]) {	
-			row--;
-			lower_bounds[mid][row] = col;
-		} else {
+			row--; col--; path_row--;
+			lower_bounds[mid][path_row] = col;
+		} else if(arr[row-1][col] > arr[row][col-1]) {	// up
+			row--; path_row--;
+			lower_bounds[mid][path_row] = col;
+		} else {	// left
 			//row--;
 			col--;
+			
 		}
 	}
 	path_lengths[mid] = length;
+	/*
+	cout << "path just created: " << endl;
+	printBounds(mid);
+	cout << " ***** " << endl;
+	*/
 	return;
 }
 
 void printBounds(int path) {
 	
-	cout << "length: " << path_lengths[path] << endl;
-	
+	//cout << "length: " << path_lengths[path] << endl;
+	cout << "path: " << path << endl;
 	cout << "lower bound path: ";
 	for (int i = 0; i <= m; i++) {
 		cout << lower_bounds[path][i] << ' ';
@@ -153,12 +170,12 @@ void findShortestPaths(int low, int up) {
 	if ((up - low) <= 1) return;
 	int mid = (low + up) / 2;
 	perm = A.substr(mid) + A.substr(0, mid);
-	cout << "mid: " << mid  << " " << perm << endl;
+	Debug("mid: " << mid  << " low: " << low << " up: " << up << " " << perm << endl);
 	clearTable();
-	printBounds(low);
-	printBounds(up);
+	//printBounds(low);
+	//printBounds(up);
 	fillDP(mid, low, up);
-	printDPTable(doubleA, B);
+	//printDPTable(doubleA, B);
 	traceBack(mid);
 	
 	/*
@@ -224,7 +241,6 @@ int main() {
 		//printBounds(0);
 		
 		//fillDP(0, m);
-		//printDPTable();
 		
 		findShortestPaths(0, m);
 
@@ -238,7 +254,7 @@ int main() {
 		
 		//cout << "clcs lengths" << endl;
 		for (int i = 0; i <= m; i++) {
-			cout << "path: " << i << " length: " << path_lengths[i] << " diags: " << (m+n) - path_lengths[i] << " DP: " << arr[i + m][n] << endl;
+			Debug("path: " << i << " length: " << path_lengths[i] << " diags: " << (m+n) - path_lengths[i] << " DP: " << arr[i + m][n] << endl);
 			/*
 			if (path_lengths[i] == min_length) {
 				cout << arr[min_path + m][n] << endl;
@@ -247,7 +263,7 @@ int main() {
 		//cout << endl;
 		//cout << arr[min_path + m][n] << endl;
 		cout << (m+n) - path_lengths[min_path] << endl;
-		cout << min_path << endl;
+		//cout << min_path << endl;
 
   }
   return 0;

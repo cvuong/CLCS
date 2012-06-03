@@ -119,7 +119,7 @@ int main() {
 		//printDPTable();
 		
     cout << max << endl;
-		cout << max_cut << endl;
+		//cout << max_cut << endl;
   }
   return 0;
 }
