@@ -2,57 +2,13 @@
 #include <iostream>
 #include <string>
 
+#define MAX_SIZE 2048
+
 using namespace std;
 
 int m, n;
-int arr[2048][2048];
+int arr[MAX_SIZE][MAX_SIZE];
 string A, B, C;
-
-/*
-void traceBack(int start_row) {
-	lower_bounds[start_row][m] = n;
-	upper_bounds[start_row][m] = n;
-	
-	int length = 0;
-	//cout << "traceback " << start_row << endl;
-	
-	//find lower bound
-	int row = start_row + m, col = n;
-	while (true) {
-		
-		//cout << "row: " << row << " col: " << col << endl;
-		upper_bounds[start_row][row] = col;
-		
-		if (row == start_row && col == 0) {
-			break;
-		}
-		
-		length++;
-		
-		if (row == start_row) {	// move left
-			col--;
-			continue;
-		} else if (col == 0) {	// move up
-			row--;
-			lower_bounds[start_row][row] = col;
-			continue;
-		}
-		
-		if (doubleA.at(row-1) == B.at(col-1)) {	
-			row--; col--;
-			lower_bounds[start_row][row] = col;
-		} else if(arr[row-1][col] <= arr[row][col-1]) {	
-			col--;
-		} else {
-			//cout << "up" << endl;
-			row--;
-			lower_bounds[start_row][row] = col;
-		}
-	}
-	path_lengths[start_row] = length;
-	return;
-}
-*/
 
 void printDPTable() {
 	cout << "   ";
@@ -111,12 +67,10 @@ int main() {
 				max = result;
 				max_cut = k;
 			}
-			//cout << result << endl;
 		}
 		
 		A = C.substr(max_cut) + C.substr(0,max_cut);
 		int result = LCS();
-		//printDPTable();
 		
     cout << max << endl;
 		//cout << max_cut << endl;
